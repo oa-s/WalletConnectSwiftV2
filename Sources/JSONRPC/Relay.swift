@@ -11,19 +11,18 @@ protocol Dispatcher {
 // specialized service
 class Relayer {
     
-    var onMessage: ((String) -> Void)?
-    
-    var dispatcher: Dispatcher!
+//    var onMessage: ((String) -> Void)?
     
 //    var `protocol` = "waku"
     
+    var methodInvokers: [String: RPCInvoker<Relayer>] = [:]
+    
     init() {
-        // setup here
-        let dsp = MessageDispatcher()
-        dispatcher = dsp
-        dispatcher.onMessage = { [weak self] in self?.handleMessage($0) }
-        dsp.socket.connect()
+//        methodInvokers["waku_subscription"] = RPCInvoker(self, executer: Relayer.subscription)
+        setupClient()
     }
+    
+    // senders
     
     func subscribe(topic: String) {
         let request = Subscribe(parameters: .init(topic: topic))
@@ -41,9 +40,29 @@ class Relayer {
         sendRequest(request)
     }
     
-    // subscription
+    // receivers
     
-    // *****
+    func subscription() {
+        // set history
+        // decode subscription params (throws)
+        // check subscription ID
+        // redirect payload
+        // make response
+        // resolve history
+        // send response
+    }
+    
+    // *generic components
+    
+    var dispatcher: Dispatcher!
+    
+    func setupClient() {
+        let dsp = MessageDispatcher()
+        dispatcher = dsp
+        dispatcher.onMessage = { [weak self] in self?.handleMessage($0) }
+        dsp.socket.connect()
+    }
+    
     func sendRequest<T: RPCMethod>(_ method: T) {
         let data = try! JSONEncoder().encode(method.asRPCRequest())
         let message = String(data: data, encoding: .utf8)!
@@ -51,8 +70,6 @@ class Relayer {
             // Handle error?
         }
     }
-    
-    
     
     func handleMessage(_ message: String) {
         // step 1: know if its a request or response
@@ -68,23 +85,20 @@ class Relayer {
                 // malformed response
             }
         }
-        
-        
-        onMessage?(message)
     }
     
     func handleRequest(_ request: Request) {
-        if request.method == "waku_subscription" {
-//            let params = try? JSONDecoder().decode(Subscription.Params.self, from: request.)
-            let params = try? request.params.get(Subscription.Params.self)
-            print("params: \(params)")
-            // respond
-        } else if request.method == "waku_publish" {
-            let params = try? request.params.get(Publish.Params.self)
-            // respond
-        } else {
-            print("not valid request")
-        }
+//        if request.method == "waku_subscription" {
+////            let params = try? JSONDecoder().decode(Subscription.Params.self, from: request.)
+//            let params = try? request.params.get(Subscription.Params.self)
+//            print("params: \(params)")
+//            // respond
+//        } else if request.method == "waku_publish" {
+//            let params = try? request.params.get(Publish.Params.self)
+//            // respond
+//        } else {
+//            print("not valid request")
+//        }
     }
     
     func handleResponse(_ response: Response) {

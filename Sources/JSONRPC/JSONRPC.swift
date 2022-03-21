@@ -1,7 +1,5 @@
 import Foundation
 
-
-
 struct Request: Codable {
     let jsonrpc: String
     let method: String
@@ -27,6 +25,8 @@ extension Request {
         self.init(method: method.method, params: method.parameters)
     }
 }
+
+
 
 struct Response: Codable {
     let jsonrpc: String = "2.0" // TODO: provide an init
@@ -58,83 +58,4 @@ struct Response: Codable {
             self.error = error
         }
     }
-}
-
-
-
-protocol RPCMethod {
-    associatedtype Parameters: Codable
-    var method: String { get }
-    var parameters: Parameters { get }
-    func asRPCRequest() -> Request
-}
-
-extension RPCMethod {
-    func asRPCRequest() -> Request {
-        Request(self)
-    }
-}
-
-
-
-struct Publish: RPCMethod {
-    
-    struct Params: Codable, Equatable {
-        let topic: String
-        let message: String
-        let ttl: Int
-        let prompt: Bool?
-    }
-    
-    var method: String {
-        "waku_publish"
-    }
-    
-    let parameters: Params
-}
-
-struct Subscribe: RPCMethod {
-    
-    struct Params: Codable, Equatable {
-        let topic: String
-    }
-    
-    var method: String {
-        "waku_subscribe"
-    }
-    
-    let parameters: Params
-}
-
-struct Unsubscribe: RPCMethod {
-    
-    struct Params: Codable, Equatable {
-        let topic: String
-        let id: String
-    }
-    
-    var method: String {
-        "waku_unsubscribe"
-    }
-    
-    let parameters: Params
-}
-
-struct Subscription: RPCMethod {
-    
-    struct Params: Codable, Equatable {
-        let id: String
-        let data: Subdata
-        
-        struct Subdata: Codable, Equatable {
-            let topic: String
-            let message: String
-        }
-    }
-    
-    var method: String {
-        "waku_subscription"
-    }
-    
-    let parameters: Params
 }

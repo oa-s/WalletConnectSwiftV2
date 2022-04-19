@@ -34,6 +34,7 @@ class AutomaticSocketConnectionHandler: SocketConnectionHandler {
         
         appStateObserver.onWillEnterForeground = { [unowned self] in
             socket.connect()
+            backgroundTaskRegistrar.endBackgroundTask()
         }
     }
     
@@ -48,7 +49,7 @@ class AutomaticSocketConnectionHandler: SocketConnectionHandler {
     }
     
     func registerBackgroundTask() {
-        backgroundTaskRegistrar.register(name: "Finish Network Tasks") { [unowned self] in
+        backgroundTaskRegistrar.beginBackgroundTask(name: "Finish Network Tasks") { [unowned self] in
             endBackgroundTask()
         }
     }
